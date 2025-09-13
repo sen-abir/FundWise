@@ -517,7 +517,7 @@ function ChatWidget() {
     <div>
       {open && (
         <div
-          className="fixed bottom-24 right-24 md:right-8 w-[320px] glass p-3 rounded-xl shadow-lg z-[100]"
+          className="fixed bottom-24 left-6 md:left-auto md:right-8 w-[320px] glass p-3 rounded-xl shadow-lg z-[200]"
           role="dialog"
           aria-label="Chat dialog"
         >
