@@ -550,7 +550,7 @@ function ChatWidget() {
         </div>
       )}
       <button
-        className="fixed bottom-6 right-6 btn-primary z-40"
+        className="fixed bottom-6 right-6 btn-primary z-[100]"
         onClick={() => setOpen((o) => !o)}
         aria-label="Toggle chat"
         data-testid="chat-toggle"
