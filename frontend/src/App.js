@@ -493,7 +493,9 @@ function ContactPage() {
 
 function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([{ role: "bot", content: "Hi! I'm the FundWise assistant (mock). Ask about pricing or demos." }]);
+  const [messages, setMessages] = useState([
+    { role: "bot", content: "Hi! I'm the FundWise assistant (mock). Ask about pricing or demos." },
+  ]);
   const [input, setInput] = useState("");
 
   function onSend(e) {
@@ -502,8 +504,10 @@ function ChatWidget() {
     const userMsg = { role: "user", content: input.trim() };
     const lower = input.toLowerCase();
     let reply = "Thanks! A teammate will reach out shortly.";
-    if (lower.includes("price") || lower.includes("pricing")) reply = "Growth is $149/mo (or $119/mo billed annually). Enterprise is custom.";
-    if (lower.includes("demo")) reply = "Happy to help – use the Request a demo form and we'll schedule a session.";
+    if (lower.includes("price") || lower.includes("pricing"))
+      reply = "Growth is $149/mo (or $119/mo billed annually). Enterprise is custom.";
+    if (lower.includes("demo"))
+      reply = "Happy to help – use the Request a demo form and we'll schedule a session.";
     const botMsg = { role: "bot", content: reply };
     setMessages((m) => [...m, userMsg, botMsg]);
     setInput("");
@@ -512,26 +516,45 @@ function ChatWidget() {
   return (
     <div>
       {open && (
-        <div className="fixed bottom-24 right-6 w-[320px] glass p-3 rounded-xl shadow-lg z-40">
+        <div
+          className="fixed bottom-24 right-6 w-[320px] glass p-3 rounded-xl shadow-lg z-40"
+          role="dialog"
+          aria-label="Chat dialog"
+        >
           <div className="flex items-center justify-between mb-2">
             <p className="font-medium text-[var(--text-primary)]">FundWise assistant</p>
-            <button className="btn-secondary px-3 py-1" onClick={() => setOpen(false)}>Close</button>
+            <button className="btn-secondary px-3 py-1" onClick={() => setOpen(false)} aria-label="Close chat">Close</button>
           </div>
           <div className="h-56 overflow-y-auto space-y-2 pr-1">
             {messages.map((m, i) => (
-              <div key={i} className={`text-sm ${m.role === "bot" ? "text-[var(--text-secondary)]" : "text-[var(--text-body)]"}`}>
+              <div
+                key={i}
+                className={`text-sm ${m.role === "bot" ? "text-[var(--text-secondary)]" : "text-[var(--text-body)]"}`}
+              >
                 <span className="font-medium mr-1">{m.role === "bot" ? "Bot:" : "You:"}</span>
                 {m.content}
               </div>
             ))}
           </div>
           <form onSubmit={onSend} className="mt-2 flex gap-2">
-            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a message..." />
-            <button className="btn-primary">Send</button>
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type a message..."
+              name="chatInput"
+              aria-label="Chat input"
+              data-testid="chat-input"
+            />
+            <button className="btn-primary" aria-label="Send message">Send</button>
           </form>
         </div>
       )}
-      <button className="fixed bottom-6 right-6 btn-primary z-40" onClick={() => setOpen((o) => !o)}>
+      <button
+        className="fixed bottom-6 right-6 btn-primary z-40"
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Toggle chat"
+        data-testid="chat-toggle"
+      >
         {open ? "Hide chat" : "Chat"}
       </button>
     </div>
