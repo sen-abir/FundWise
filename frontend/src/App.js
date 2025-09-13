@@ -1,0 +1,572 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import "./App.css";
+import "./index.css";
+import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Header } from "./components/layout/Header";
+import { Footer } from "./components/layout/Footer";
+import { FEATURES, USE_CASES, TESTIMONIALS, PRICING, BLOG_POSTS, FAQ } from "./mocks/mock";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
+import { Badge } from "./components/ui/badge";
+import { Input } from "./components/ui/input";
+import { Textarea } from "./components/ui/textarea";
+import { Button } from "./components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./components/ui/carousel";
+import { Progress } from "./components/ui/progress";
+import { Switch } from "./components/ui/switch";
+import { Toaster, toast } from "sonner";
+import { Activity, ShieldCheck, Sparkles, Layers, LineChart, Workflow } from "lucide-react";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+const IconMap = {
+  Activity: Activity,
+  ShieldCheck: ShieldCheck,
+  Sparkles: Sparkles,
+  Layers: Layers,
+  LineChart: LineChart,
+  Workflow: Workflow,
+};
+
+function usePingBackend() {
+  useEffect(() => {
+    async function hello() {
+      try {
+        const res = await axios.get(`${API}/`);
+        console.log(res.data.message);
+      } catch (e) {
+        console.warn("Backend not reachable yet or error on /api/", e?.message);
+      }
+    }
+    hello();
+  }, []);
+}
+
+function scrollToId(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function useSEO(title, description) {
+  useEffect(() => {
+    if (title) document.title = title;
+    if (description) {
+      let m = document.querySelector('meta[name="description"]');
+      if (!m) {
+        m = document.createElement("meta");
+        m.name = "description";
+        document.head.appendChild(m);
+      }
+      m.content = description;
+    }
+  }, [title, description]);
+}
+
+function LandingPage() {
+  useSEO(
+    "FundWise — Automate workflows. Accelerate growth.",
+    "FundWise is a smart workflow automation platform to optimize efficiency and reduce manual work."
+  );
+
+  const nav = useNavigate();
+
+  return (
+    <main>
+      {/* Hero */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <div className="glass p-6 md:p-10 shadow-sm">
+            <p className="uppercase tracking-wide text-[var(--text-secondary)] text-xs mb-3">AI workflow automation</p>
+            <h1 className="hero-title">Automate workflows. Accelerate growth.</h1>
+            <p className="hero-subtitle max-w-2xl">FundWise routes work, reduces manual tasks, and gives you AI-powered recommendations so teams execute faster with fewer mistakes.</p>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <button className="btn-primary btn-hover-scale" onClick={() => scrollToId("demo")}>Request a demo</button>
+              <button className="btn-secondary" onClick={() => nav("/pricing")}>View pricing</button>
+            </div>
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[var(--text-secondary)] text-sm">
+              <div className="glass p-3 text-center">41% avg. manual work reduced</div>
+              <div className="glass p-3 text-center">100+ integrations</div>
+              <div className="glass p-3 text-center">SOC2 + SSO</div>
+              <div className="glass p-3 text-center">Deployed in days</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="section">
+        <div className="container">
+          <div className="mb-8">
+            <h2 className="heading-2 text-[var(--text-primary)]">Everything you need to automate</h2>
+            <p className="body-medium text-[var(--text-secondary)] mt-2 max-w-2xl">Build workflows in minutes, connect your stack, and let AI continuously suggest improvements.</p>
+          </div>
+          <div className="ai-grid">
+            {FEATURES.map((f) => {
+              const Icon = IconMap[f.icon] || Activity;
+              return (
+                <Card key={f.id} className="product-card">
+                  <CardHeader className="flex flex-row items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-wash)] grid place-items-center border border-[var(--border-light)]">
+                      <Icon className="text-[var(--accent-text)]" size={18} />
+                    </div>
+                    <CardTitle className="text-[var(--text-primary)]">{f.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-[var(--text-secondary)]">{f.description}</CardDescription>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Use cases Tabs */}
+      <section className="section section-muted">
+        <div className="container">
+          <h3 className="heading-3 mb-4">Use cases</h3>
+          <Tabs defaultValue={USE_CASES[0].key} className="w-full">
+            <TabsList className="flex overflow-x-auto">
+              {USE_CASES.map((u) => (
+                <TabsTrigger key={u.key} value={u.key}>{u.title}</TabsTrigger>
+              ))}
+            </TabsList>
+            {USE_CASES.map((u) => (
+              <TabsContent key={u.key} value={u.key} className="mt-4">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="product-card">
+                    <CardHeader>
+                      <CardTitle className="text-[var(--text-primary)]">{u.title} playbook</CardTitle>
+                      <CardDescription>Examples of automations teams ship in days.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc pl-4 space-y-2 text-[var(--text-body)]">
+                        {u.bullets.map((b, idx) => (
+                          <li key={idx}>{b}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  <Card className="product-card relative overflow-hidden">
+                    <CardHeader>
+                      <CardTitle>Workflow preview</CardTitle>
+                      <CardDescription>High-level view of steps and checks.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-3 gap-4">
+                        {["Trigger", "Enrich", "Notify"].map((step, i) => (
+                          <div key={i} className="glass p-4 rounded-xl text-sm">
+                            <p className="font-medium">{step}</p>
+                            <p className="text-[var(--text-secondary)]">{i === 0 ? "Form submission" : i === 1 ? "Lookup + validate" : "Slack + email"}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="section">
+        <div className="container">
+          <div className="mb-6 flex items-end justify-between">
+            <div>
+              <h3 className="heading-3">Trusted by operators</h3>
+              <p className="text-[var(--text-secondary)]">What leaders say about FundWise</p>
+            </div>
+          </div>
+          <Carousel className="w-full">
+            <CarouselContent>
+              {TESTIMONIALS.map((t, idx) => (
+                <CarouselItem key={idx} className="md:basis-1/2 lg:basis-1/3">
+                  <Card className="product-card h-full flex flex-col">
+                    <CardContent className="pt-6">
+                      <p className="text-[var(--text-body)] italic">“{t.quote}”</p>
+                      <div className="mt-4">
+                        <p className="font-medium text-[var(--text-primary)]">{t.name}</p>
+                        <p className="text-[var(--text-secondary)] text-sm">{t.role}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section section-muted">
+        <div className="container">
+          <h3 className="heading-3 mb-4">FAQs</h3>
+          <Accordion type="single" collapsible>
+            {FAQ.map((f, idx) => (
+              <AccordionItem key={idx} value={`item-${idx}`}>
+                <AccordionTrigger>{f.q}</AccordionTrigger>
+                <AccordionContent>{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="section">
+        <div className="container">
+          <div className="cta-band">
+            <div>
+              <h3 className="heading-3">Ready to see FundWise?</h3>
+              <p className="text-[var(--text-secondary)]">Request a personalized demo tailored to your workflows.</p>
+            </div>
+            <button className="btn-primary" onClick={() => scrollToId("demo")}>Request a demo</button>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo form */}
+      <section id="demo" className="section section-muted">
+        <div className="container">
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div>
+              <h3 className="heading-3 mb-2">Request a demo</h3>
+              <p className="text-[var(--text-secondary)]">Tell us a bit about your team. We'll respond within 24 hours.</p>
+            </div>
+            <DemoForm />
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function DemoForm() {
+  const [form, setForm] = useState({ name: "", email: "", company: "", notes: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Prefill from localStorage
+    const saved = localStorage.getItem("fundwise_demo_form");
+    if (saved) {
+      try { setForm(JSON.parse(saved)); } catch {}
+    }
+  }, []);
+
+  function onChange(e) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    if (!form.name || !form.email) {
+      toast.error("Please add your name and email");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      // Mock: save to localStorage only
+      const payload = {
+        ...form,
+        submittedAt: new Date().toISOString(),
+        utm: Object.fromEntries(new URLSearchParams(window.location.search)),
+      };
+      const existing = JSON.parse(localStorage.getItem("fundwise_demo_submissions") || "[]");
+      existing.push(payload);
+      localStorage.setItem("fundwise_demo_submissions", JSON.stringify(existing));
+      localStorage.setItem("fundwise_demo_form", JSON.stringify(form));
+      toast.success("Request received. We'll be in touch soon!");
+      setForm({ name: "", email: "", company: "", notes: "" });
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="glass p-5 rounded-xl space-y-4">
+      <div>
+        <label className="block text-sm mb-1">Full name</label>
+        <Input name="name" placeholder="Jane Doe" value={form.name} onChange={onChange} />
+      </div>
+      <div>
+        <label className="block text-sm mb-1">Work email</label>
+        <Input name="email" type="email" placeholder="jane@company.com" value={form.email} onChange={onChange} />
+      </div>
+      <div>
+        <label className="block text-sm mb-1">Company</label>
+        <Input name="company" placeholder="Acme Inc" value={form.company} onChange={onChange} />
+      </div>
+      <div>
+        <label className="block text-sm mb-1">What would you like to automate?</label>
+        <Textarea name="notes" placeholder="Share your top 1-2 workflows..." value={form.notes} onChange={onChange} />
+      </div>
+      <div className="flex items-center justify-between">
+        <p className="text-[var(--text-muted)] text-xs">No spam. We'll only contact you about your demo.</p>
+        <button className="btn-primary" disabled={submitting}>
+          {submitting ? "Submitting..." : "Request demo"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function PricingPage() {
+  useSEO("FundWise — Pricing", "Choose a plan that fits your team's needs.");
+  const [annual, setAnnual] = useState(true);
+  return (
+    <main className="section">
+      <div className="container">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="heading-2">Simple pricing</h2>
+            <p className="text-[var(--text-secondary)]">Transparent plans that scale with you</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[var(--text-secondary)]">Monthly</span>
+            <Switch checked={annual} onCheckedChange={setAnnual} />
+            <span className="text-sm text-[var(--text-secondary)]">Annual</span>
+            <Badge className="ml-2 bg-[var(--accent-wash)] text-[var(--accent-text)] border border-[var(--border-light)]">Save 20%</Badge>
+          </div>
+        </div>
+        <div className="ai-grid">
+          {PRICING.map((p) => (
+            <Card key={p.plan} className={`product-card ${p.popular ? "ring-2 ring-[var(--accent-strong)]" : ""}`}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-[var(--text-primary)]">{p.plan}</CardTitle>
+                  {p.popular && <Badge className="bg-[var(--accent-strong)] text-black">Most popular</Badge>}
+                </div>
+                <CardDescription>
+                  {p.contact ? (
+                    <span className="text-[var(--text-secondary)]">Custom pricing</span>
+                  ) : (
+                    <span className="text-[var(--text-primary)] text-2xl font-semibold">${annual ? p.priceYearly : p.priceMonthly}<span className="text-sm text-[var(--text-secondary)]">/mo</span></span>
+                  )}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-[var(--text-body)] mb-6">
+                  {p.features.map((f, idx) => (
+                    <li key={idx} className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-strong)]"></span>{f}</li>
+                  ))}
+                </ul>
+                {p.contact ? (
+                  <Link to="/contact" className="btn-secondary w-full justify-center">Contact sales</Link>
+                ) : (
+                  <button className="btn-primary w-full">Start free trial</button>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function BlogPage() {
+  useSEO("FundWise — Insights", "Thoughts on automation and productivity.");
+  return (
+    <main className="section">
+      <div className="container">
+        <h2 className="heading-2 mb-6">Insights</h2>
+        <div className="ai-grid">
+          {BLOG_POSTS.map((post) => (
+            <Card key={post.slug} className="product-card">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-[var(--text-primary)]">{post.title}</CardTitle>
+                  <Badge variant="outline">{post.tag}</Badge>
+                </div>
+                <CardDescription>{post.date}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-[var(--text-body)] mb-4">{post.excerpt}</p>
+                <button className="btn-secondary">Read more</button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function DashboardPage() {
+  useSEO("FundWise — Dashboard", "Create, monitor and optimize workflows.");
+  const [steps, setSteps] = useState([
+    { id: 1, name: "Trigger: Form submission", enabled: true, health: 92 },
+    { id: 2, name: "Enrich: CRM lookup", enabled: true, health: 88 },
+    { id: 3, name: "Validate: Policy check", enabled: false, health: 0 },
+    { id: 4, name: "Notify: Slack + Email", enabled: true, health: 95 },
+  ]);
+
+  function toggle(id) {
+    setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s)));
+  }
+
+  return (
+    <main className="section">
+      <div className="container">
+        <div className="mb-6">
+          <h2 className="heading-2">Workflow builder</h2>
+          <p className="text-[var(--text-secondary)]">Create steps, toggle checks and monitor health.</p>
+        </div>
+        <div className="grid md:grid-cols-5 gap-6">
+          <div className="md:col-span-2 space-y-3">
+            {steps.map((s) => (
+              <Card key={s.id} className="product-card">
+                <CardContent className="pt-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-[var(--text-primary)]">{s.name}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Switch checked={s.enabled} onCheckedChange={() => toggle(s.id)} />
+                        <span className="text-sm text-[var(--text-secondary)]">{s.enabled ? "Enabled" : "Disabled"}</span>
+                      </div>
+                    </div>
+                    <div className="w-24">
+                      <Progress value={s.health} />
+                      <p className="text-xs text-[var(--text-muted)] mt-1">Health</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            <button className="btn-secondary w-full">+ Add step</button>
+          </div>
+          <div className="md:col-span-3">
+            <Card className="product-card h-full">
+              <CardHeader>
+                <CardTitle>Flow preview</CardTitle>
+                <CardDescription>Dotted connections indicate enabled paths.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-6">
+                  {steps.map((s, i) => (
+                    <div key={s.id} className={`glass p-4 rounded-xl ${s.enabled ? "opacity-100" : "opacity-50"}`}>
+                      <p className="font-medium">Step {i + 1}</p>
+                      <p className="text-[var(--text-secondary)] text-sm">{s.name}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 text-[var(--text-muted)] text-sm">Drag-and-drop builder and metrics coming soon.</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function ContactPage() {
+  useSEO("FundWise — Contact", "Get in touch with our team.");
+  return (
+    <main className="section">
+      <div className="container">
+        <div className="grid md:grid-cols-2 gap-8">
+          <div>
+            <h2 className="heading-2 mb-2">Contact us</h2>
+            <p className="text-[var(--text-secondary)] mb-6">We typically reply within one business day.</p>
+            <ul className="space-y-2 text-[var(--text-body)]">
+              <li>Email: hello@fundwise.ai</li>
+              <li>Support: support@fundwise.ai</li>
+            </ul>
+          </div>
+          <DemoForm />
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function ChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([{ role: "bot", content: "Hi! I'm the FundWise assistant (mock). Ask about pricing or demos." }]);
+  const [input, setInput] = useState("");
+
+  function onSend(e) {
+    e.preventDefault();
+    if (!input.trim()) return;
+    const userMsg = { role: "user", content: input.trim() };
+    const lower = input.toLowerCase();
+    let reply = "Thanks! A teammate will reach out shortly.";
+    if (lower.includes("price") || lower.includes("pricing")) reply = "Growth is $149/mo (or $119/mo billed annually). Enterprise is custom.";
+    if (lower.includes("demo")) reply = "Happy to help – use the Request a demo form and we'll schedule a session.";
+    const botMsg = { role: "bot", content: reply };
+    setMessages((m) => [...m, userMsg, botMsg]);
+    setInput("");
+  }
+
+  return (
+    <div>
+      {open && (
+        <div className="fixed bottom-24 right-6 w-[320px] glass p-3 rounded-xl shadow-lg z-40">
+          <div className="flex items-center justify-between mb-2">
+            <p className="font-medium text-[var(--text-primary)]">FundWise assistant</p>
+            <button className="btn-secondary px-3 py-1" onClick={() => setOpen(false)}>Close</button>
+          </div>
+          <div className="h-56 overflow-y-auto space-y-2 pr-1">
+            {messages.map((m, i) => (
+              <div key={i} className={`text-sm ${m.role === "bot" ? "text-[var(--text-secondary)]" : "text-[var(--text-body)]"}`}>
+                <span className="font-medium mr-1">{m.role === "bot" ? "Bot:" : "You:"}</span>
+                {m.content}
+              </div>
+            ))}
+          </div>
+          <form onSubmit={onSend} className="mt-2 flex gap-2">
+            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a message..." />
+            <button className="btn-primary">Send</button>
+          </form>
+        </div>
+      )}
+      <button className="fixed bottom-6 right-6 btn-primary z-40" onClick={() => setOpen((o) => !o)}>
+        {open ? "Hide chat" : "Chat"}
+      </button>
+    </div>
+  );
+}
+
+function AppShell() {
+  usePingBackend();
+  return (
+    <div>
+      <Header />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/features" element={<LandingPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
+      <Footer />
+      <ChatWidget />
+      <Toaster richColors position="top-center" />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div className="App min-h-screen bg-[var(--bg-page)] text-[var(--text-body)]">
+      <BrowserRouter>
+        <AppShell />
+      </BrowserRouter>
+    </div>
+  );
+}
+
+export default App;
